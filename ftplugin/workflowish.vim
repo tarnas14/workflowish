@@ -283,3 +283,28 @@ endfunction
 "}}}
 
 " vim:set fdm=marker sw=2 sts=2 et:
+
+" setting due dates for tasks (in no so distant future, based on today + 'offset')
+
+function! InsertAtEnd(text)
+  " Append space + result to current line without moving cursor.
+  let spaceOrNoSpace = empty(getline('.')) ? '' : ' '
+  call setline(line('.'), getline('.') . spaceOrNoSpace . '#' . a:text)
+endfunction
+
+function! GetDateTag(days)
+  let days = empty(a:days) ? '+0' : a:days
+  let cmd = '/bin/date +\%F -d ' . shellescape(days . ' day')
+  let result = substitute(system(cmd), '[\]\|[[:cntrl:]]', '', 'g')
+  return result
+endfunction
+
+command! -nargs=1 Do call InsertAtEnd(GetDateTag(<f-args>))
+command! Today Do 0
+command! Tomorrow Do +1
+
+command! -nargs=1 Todo execute 'G /' . GetDateTag(<f-args>) . '/'
+command! TodoToday Todo 0
+command! TT TodoToday
+command! TodoTomorrow Todo +1
+command! TTr TodoTomorrow
