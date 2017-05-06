@@ -308,3 +308,6 @@ command! TodoToday Todo 0
 command! TT TodoToday
 command! TodoTomorrow Todo +1
 command! TTr TodoTomorrow
+
+command! Done s/\*/-
+command! D Done
