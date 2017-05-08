@@ -397,7 +397,7 @@ function! s:GetDateTag(days)
   return result
 endfunction
 
-command! -nargs=1 Do call s:InsertAtEnd(GetDateTag(<f-args>))
+command! -nargs=1 Do call s:InsertAtEnd(s:GetDateTag(<f-args>))
 command! Today Do 0
 command! Tomorrow Do +1
 
