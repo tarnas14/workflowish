@@ -52,7 +52,9 @@ Thanks to the long running tradition, *workflowish* files have `.wofl` extension
 - todos:
   - a todo which is not completed is a line which starts with `*`
   - completed todo starts with a `-`
-  - `:Done`/`:D` command marks line as done (changes first `*` to `-`)
+  - `:Done`/`:D` command marks line as done (changes first character to `-`)
+  - `:Task`/`:T` command marks line as task (changes first character to `+`)
+  - `:Note`/`:WN` command marks line as regular dot (changes first character to `*`)
 
 ### task management
 
@@ -63,6 +65,7 @@ shortcut commands for `NORMAL` mode:
 `:Today` adds current date `#YYYY-MM-DD` tag at the end of current line
 `:Tomorrow` adds tomorrow `#YYYY-MM-DD` tag at the end of current line
 `:Do <offset>` adds a `#YYYY-MM-DD` for today + <offset> (note, if offset is '-1' it will add yesterday's date)
+`:Undo`/`:U` removes `#YYYY-MM-DD` from the end of current line
 
 `:TodoToday`/`:TT` uses `:G` to look for `#YYYY-MM-DD` tags for current date
 `:TodoTomorrow`/`:TTr` uses `:G` to look for `#YYYY-MM-DD` tags for date of next day 
