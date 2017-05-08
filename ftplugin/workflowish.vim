@@ -416,5 +416,5 @@ command! T Task
 command! Note s/\S/*/ <bar> noh
 command! WN Note
 
-command! Undo s/\s#\d\d\d\d-\d\d-\d\d^// <bar> noh
+command! Undo s/\s#\d\d\d\d-\d\d-\d\d$// <bar> noh
 command! U Undo
