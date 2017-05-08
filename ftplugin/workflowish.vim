@@ -407,5 +407,5 @@ command! TT TodoToday
 command! TodoTomorrow Todo +1
 command! TTr TodoTomorrow
 
-command! Done s/\*/-
+command! Done s/\S/-/ <bar> noh
 command! D Done
