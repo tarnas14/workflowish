@@ -1,64 +1,77 @@
 # Workflowish
 
-[![Build Status](https://travis-ci.org/flugsio/workflowish.png)](https://travis-ci.org/flugsio/workflowish)
+Simple TODO list plugin for Vim, inspired by 
 
-Simple TODO list plugin for Vim, inspired by [Workflowy.com](https://workflowy.com/)
+- [Workflowy.com](https://workflowy.com/)
+- [vimflowy](https://github.com/WuTheFWasThat/vimflowy)
 
-## Screenshot
+# FORKED FROM
 
-![vimshot](http://f.cl.ly/items/3A1n1J1e3m1R2u463a1t/Screen%20shot%202012-03-03%20at%2017.45.35.png)
+[workflowish](https://github.com/lukaszkorecki/workflowish)
 
+# Why?
 
-## Why?
+I was using workflowy for a long time, then picked up vim and after learning 
+some basic usage I decided it was the superior way to edit text and navigate documents.
 
-It started with a [tweet](https://twitter.com/#!/lukaszkorecki/status/175637968348917760)
+I wanted the same navigation in workflowy, so I looked around and found [vimflowy](https://github.com/WuTheFWasThat/vimflowy)
+Initially I wanted to use vimflowy and implement additional functionality there, but I gave up on the idea.
 
-![tweetshot](http://f.cl.ly/items/1M21383X350K3k0j1j2O/Screen%20shot%202012-03-03%20at%2017.15.00.png)
+I used workflowy tags with dates to mark due dates and search engine to display
+tasks to be done for particular days. Typing whole `#2017-05-08` is a pain in the ass,
+so I wanted shortcuts (something like `today` which would get translated to `#YYYY-MM-DD` format)
 
-Here's what was "attached":
+I turned towards [workflowish](https://github.com/lukaszkorecki/workflowish) !
+And decided to fiddle with vim to get something done that would fit my needs :)
 
-    # vi: fen foldmethod=indent :
-    * lol
-      * lol
-        * wat
-        * wut
-    +---  2 lines: * wee ------------------------------------------------------
-        * meh
-      * ouch
+## prerequisites ...
 
-Then I started hacking on a little plugin-ish thing and came up with `workflowish`
+To make this work like workflowy in vim you only have to learn to work with `vim folding` and `vimgrep` and `quickfix`...
 
-![folded](http://f.cl.ly/items/2G3d070b2c3u0m302X0j/Screen%20shot%202012-03-03%20at%2017.08.50.png)
+# Features and syntax
 
-# How?
+Thanks to the long running tradition, *workflowish* files have `.wofl` extension.
 
-By defining a simple syntax in Vim and using brilliant [folding capabilities](http://vim.wikia.com/wiki/Folding) *workflowish* can simulate 99% of *Workflowy's* features.
-
-
-### Features?
+## provided by vim
 
 - searching (Vim is pretty good at it)
 - deleting (as above)
+- split windows in vim makes it easy to organize big lists
+- [vimgrep](http://vimdoc.sourceforge.net/htmldoc/quickfix.html#:vimgrep) for filtering lines
+
+## provided by this plugin
+
 - folding and a `zoom/focus` mode
   - `zq` to focus on current item / toggle off
   - `zp` move focus to parent item
   - `za` toggles folding. See [Vim wiki: Folding](http://vim.wikia.com/wiki/Folding#Opening_and_closing_folds)
+- convert from workflowy plain text export
+  - in a `.wofl` file or after `:set ft=workflowish`, run `:call workflowish#convert_from_workflowy()` to convert the whole buffer
+- vimgrep shortcut (`:G`) that greps current buffer, based on a great plugin [VimGrepBuffer](https://github.com/vim-scripts/VimgrepBuffer)
 - notes (just add `\` in the beginning of the line to start a comment)
-- [vimgrep](http://vimdoc.sourceforge.net/htmldoc/quickfix.html#:vimgrep) for filtering lines
 - todos:
   - a todo which is not completed is a line which starts with `*`
   - completed todo starts with a `-`
-- convert from workflowy plain text export
-  - in a `.wofl` file or after `:set ft=workflowish`, run `:call workflowish#convert_from_workflowy()` to convert the whole buffer
-- split windows in vim makes it easy to organize big lists
+  - `:Done`/`:D` command marks line as done (changes first `*` to `-`)
 
-Thanks to the long running tradition, *workflowish* files have `.wofl` extension.
+### task management
 
-## Installing
+this is the basic convention: task date is marked by tags in `#YYYY-MM-DD` format
+
+shortcut commands for `NORMAL` mode:
+
+`:Today` adds current date `#YYYY-MM-DD` tag at the end of current line
+`:Tomorrow` adds tomorrow `#YYYY-MM-DD` tag at the end of current line
+`:Do <offset>` adds a `#YYYY-MM-DD` for today + <offset> (note, if offset is '-1' it will add yesterday's date)
+
+`:TodoToday`/`:TT` uses `:G` to look for `#YYYY-MM-DD` tags for current date
+`:TodoTomorrow`/`:TTr` uses `:G` to look for `#YYYY-MM-DD` tags for date of next day 
+`:Todo <offset>` uses `:G` to look for `#YYYY-MM-DD` tags for date offset by <offset> from today
+
+# Installing
 
 [Use Tim Pope's Pathogen](https://github.com/tpope/vim-pathogen).
-
-> New to Pathogen? It's easy. You "install a plugin" by putting its files in a directory. i.e. `cd ~/.vim/bundle && git clone https://github.com/lukaszkorecki/workflowish` but please, [read the Pathogen README](https://github.com/tpope/vim-pathogen).)
+[or vim plug](https://github.com/junegunn/vim-plug)
 
 ## Optional configuration tweak
 
@@ -71,10 +84,4 @@ autocmd BufWinEnter *.wofl silent loadview
 
 # Legal
 
-MIT  (c) Workflowish Team
-
-## Maintainers
-
-   15 Jimmie Elvenmark
-   10 Łukasz Korecki
-    4 hangtwentyy
+MIT (c)
