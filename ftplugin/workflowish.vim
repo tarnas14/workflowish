@@ -409,3 +409,9 @@ command! TTr TodoTomorrow
 
 command! Done s/\S/-/ <bar> noh
 command! D Done
+
+command! Task s/\S/+/ <bar> noh
+command! T Task
+
+command! Note s/\S/*/ <bar> noh
+command! WN Note
