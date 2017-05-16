@@ -407,14 +407,14 @@ command! TT TodoToday
 command! TodoTomorrow Todo +1
 command! TTr TodoTomorrow
 
-command! Done s/\S/-/ <bar> noh
-command! D Done
-
 command! Task s/\S/+/ <bar> noh
 command! T Task
 
 command! Note s/\S/*/ <bar> noh
 command! WN Note
 
-command! Undo s/\s*#\d\d\d\d-\d\d-\d\d\s*$// <bar> noh
+command! -bar Undo s/\s*#\d\d\d\d-\d\d-\d\d\s*$// <bar> noh
 command! U Undo
+
+command! Done s/\S/-/ <bar> noh
+command! D Undo | Done
