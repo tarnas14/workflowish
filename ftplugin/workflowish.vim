@@ -368,6 +368,8 @@ function! s:ViewVimgrepBufferResults(pattern, set_search_register, view_results,
     if a:view_results
         if len(getqflist()) > 0
             copen
+            set conceallevel=2 concealcursor=nc
+            syntax match qfFileName /^[^|]*/ transparent conceal
             1cc
         else
             cclose
