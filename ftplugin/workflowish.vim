@@ -415,8 +415,8 @@ command! T Task
 command! Note s/\S/*/ <bar> noh
 command! WN Note
 
-command! -bar Undo s/\s*#\d\d\d\d-\d\d-\d\d\s*$// <bar> noh
+command! Undo s/\s*#\d\d\d\d-\d\d-\d\d\s*$// <bar> noh
 command! U Undo
 
-command! Done s/\S/-/ <bar> noh
-command! D Undo | Done
+command! -bar Done s/\S/-/ <bar> noh
+command! D Done | Undo
