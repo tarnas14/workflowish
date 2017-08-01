@@ -399,9 +399,9 @@ function! s:GetDateTag(days)
   return result
 endfunction
 
-command! -nargs=1 Do call s:InsertAtEnd(s:GetDateTag(<f-args>))
-command! Today Do 0
-command! Tomorrow Do +1
+command! -bar -nargs=1 Do call s:InsertAtEnd(s:GetDateTag(<f-args>))
+command! Today Do 0 | TT
+command! Tomorrow Do +1 | TTr
 
 command! -nargs=1 Todo execute 'G /' . s:GetDateTag(<f-args>) . '/'
 command! TodoToday Todo 0
@@ -415,8 +415,8 @@ command! T Task
 command! Note s/\S/*/ <bar> noh
 command! WN Note
 
-command! Undo s/\s*#\d\d\d\d-\d\d-\d\d\s*$// <bar> noh
-command! U Undo
+command! -bar Undo s/\s*#\d\d\d\d-\d\d-\d\d\s*$// <bar> noh
+command! U Undo | TT
 
 command! -bar Done s/\S/-/ <bar> noh
-command! D Done | Undo
+command! D Done | Undo | TT
