@@ -420,3 +420,74 @@ command! U Undo | TT
 
 command! -bar Done s/\S/-/ <bar> noh
 command! D Done | Undo | TT
+
+" this function will put into quickfix list all the actions found
+" in a structure like the one provided below within any level of 
+" indentation :)
+" actions starting with '-' are filtered out
+" only first level of indentation is an 'action', anything deeper is skipped
+" projects with no actionable actions will not be displayed in the quicklist
+"
+" * project name
+"   + actions // lnum
+"     * action1
+"     + action2
+"       * asdf
+"     - done action
+"   * some other item
+"
+" that structure will provide this result in quicklist :
+" |lnum| [project name]
+" |lnum+1| * action1
+" |lnum+2| + action2
+function! s:ShowAllActions()
+  let s:getLineNumbers = "awk '/\\+ actions/{print NR}' " . expand('%:p')
+  let s:lineNums = systemlist(s:getLineNumbers)
+  let actionsByProject = s:Mapped(function("s:GetActions"), s:lineNums)
+  call setqflist(s:Flatten(actionsByProject))
+  copen
+  set conceallevel=2 concealcursor=nc
+  syntax match qfFileName /^[^|]*/ transparent conceal
+  1cc
+endfunction
+command! A call s:ShowAllActions()
+
+function! s:GetActions(actionHeaderLnum) 
+  let actionIndent = indent(a:actionHeaderLnum)
+  let actions = []
+  let counter = 1
+  let currentIndent = indent(a:actionHeaderLnum + counter)
+  while currentIndent > actionIndent
+    let actionLnum = a:actionHeaderLnum + counter
+    let currentLine = s:Strip(getline(actionLnum))
+    let notDone = match(currentLine, '^\s*-.*$') == -1
+    if (currentIndent - 2 == actionIndent) && notDone
+      call add(actions, { "lnum": actionLnum, "text": currentLine, "bufnr": bufnr('%') })
+    endif
+    let counter += 1
+    let currentIndent = indent(a:actionHeaderLnum + counter)
+  endwhile
+  if len(actions) != 0
+    let project = "[" . strpart(s:Strip(getline(a:actionHeaderLnum - 1)), 2) . "]"
+    let actions = [{"lnum": a:actionHeaderLnum, "text": project, "bufnr": bufnr('%')}] + actions
+  endif
+  return actions
+endfunction
+
+function! s:Flatten(toFlatten)
+  let results = []
+  for subList in a:toFlatten
+    let results = results + subList
+  endfor
+  return results
+endfunction
+
+function! s:Mapped(fn, l)
+  let new_list = deepcopy(a:l)
+  call map(new_list, string(a:fn) . '(v:val)')
+  return new_list
+endfunction
+
+function! s:Strip(input_string)
+    return substitute(a:input_string, '^\s*\(.\{-}\)\s*$', '\1', '')
+endfunction
