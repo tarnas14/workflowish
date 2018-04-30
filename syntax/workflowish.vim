@@ -20,6 +20,9 @@ hi def link WFComment Title
 syn match WFToDo /^\s*+.*$/
 hi def link WFToDo SignColumn
 
+syn match WFProject /^\s*%.*$/
+hi def link WFProject Identifier
+
 hi! link Folded Function
 
 let b:current_syntax = "workflowish"

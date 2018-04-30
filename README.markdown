@@ -71,6 +71,14 @@ shortcut commands for `NORMAL` mode:
 `:TodoTomorrow`/`:TTr` uses `:G` to look for `#YYYY-MM-DD` tags for date of next day 
 `:Todo <offset>` uses `:G` to look for `#YYYY-MM-DD` tags for date offset by <offset> from today
 
+### project management
+
+Projects are dots which have a dot and their first child (the line directly below them without any notes) is `+ actions`.
+Project actions are dots that are direct childs of the `+ actions`. Actions marked by `-` are considered done.
+
+- `:A` will show all not done actions per project (first project name, then actions)
+- `:P` will show all projects
+
 # Installing
 
 [Use Tim Pope's Pathogen](https://github.com/tpope/vim-pathogen).

@@ -452,6 +452,18 @@ function! s:ShowAllActions()
 endfunction
 command! A call s:ShowAllActions()
 
+function! s:ShowAllProjects()
+  let s:getLineNumbers = "awk '/\\+ actions/{print NR}' " . expand('%:p')
+  let s:lineNums = systemlist(s:getLineNumbers)
+  let projects = s:Mapped(function("s:GetProjectQFI"), s:lineNums)
+  call setqflist(projects)
+  copen
+  set conceallevel=2 concealcursor=nc
+  syntax match qfFileName /^[^|]*/ transparent conceal
+  1cc
+endfunction
+command! P call s:ShowAllProjects()
+
 function! s:GetActions(actionHeaderLnum) 
   let actionIndent = indent(a:actionHeaderLnum)
   let actions = []
@@ -468,10 +480,15 @@ function! s:GetActions(actionHeaderLnum)
     let currentIndent = indent(a:actionHeaderLnum + counter)
   endwhile
   if len(actions) != 0
-    let project = "[" . strpart(s:Strip(getline(a:actionHeaderLnum - 1)), 2) . "]"
-    let actions = [{"lnum": a:actionHeaderLnum, "text": project, "bufnr": bufnr('%')}] + actions
+    let project = s:GetProjectQFI(a:actionHeaderLnum)
+    let actions = [project] + actions
   endif
   return actions
+endfunction
+
+function! s:GetProjectQFI(actionHeaderLnum)
+  let projectName = "[" . strcharpart(s:Strip(getline(a:actionHeaderLnum - 1)), 2) . "]"
+  return {"lnum": a:actionHeaderLnum, "text": projectName, "bufnr": bufnr('%')}
 endfunction
 
 function! s:Flatten(toFlatten)
