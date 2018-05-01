@@ -437,14 +437,17 @@ command! D Done | Undo | TT
 "   * some other item
 "
 " that structure will provide this result in quicklist :
-" |lnum| [project name]
+" |lnum| [project name][2]
 " |lnum+1| * action1
 " |lnum+2| + action2
 function! s:ShowAllActions()
-  let s:getLineNumbers = "awk '/\\+ actions/{print NR}' " . expand('%:p')
-  let s:lineNums = systemlist(s:getLineNumbers)
-  let actionsByProject = s:Mapped(function("s:GetActions"), s:lineNums)
-  call setqflist(s:Flatten(actionsByProject))
+  let projectsWithActions = s:GetActionsPerProjects()
+  let qf = []
+  for projectWithActions in projectsWithActions
+    call add(qf, projectWithActions.project)
+    let qf = qf + projectWithActions.actions
+  endfor
+  call setqflist(qf)
   copen
   set conceallevel=2 concealcursor=nc
   syntax match qfFileName /^[^|]*/ transparent conceal
@@ -452,10 +455,28 @@ function! s:ShowAllActions()
 endfunction
 command! A call s:ShowAllActions()
 
+" this function will put into quickfix list all the projecs found
+" in a structure like the one provided below within any level of 
+" indentation :)
+" actions starting with '-' are filtered out
+" projects with no actionable actions will not be displayed in the quicklist
+"
+" * project name
+"   + actions // lnum
+"     * action1
+"     + action2
+"       * asdf
+"     - done action
+"   * some other item
+"
+" that structure will provide this result in quicklist :
+" |lnum-1| [project name][2]
 function! s:ShowAllProjects()
-  let s:getLineNumbers = "awk '/\\+ actions/{print NR}' " . expand('%:p')
-  let s:lineNums = systemlist(s:getLineNumbers)
-  let projects = s:Mapped(function("s:GetProjectQFI"), s:lineNums)
+  let projectsWithActions = s:GetActionsPerProjects()
+  let projects = []
+  for projectWithActions in projectsWithActions
+    call add(projects, projectWithActions.project)
+  endfor
   call setqflist(projects)
   copen
   set conceallevel=2 concealcursor=nc
@@ -464,47 +485,53 @@ function! s:ShowAllProjects()
 endfunction
 command! P call s:ShowAllProjects()
 
-function! s:GetActions(actionHeaderLnum) 
-  let actionIndent = indent(a:actionHeaderLnum)
-  let actions = []
-  let counter = 1
-  let currentIndent = indent(a:actionHeaderLnum + counter)
-  while currentIndent > actionIndent
-    let actionLnum = a:actionHeaderLnum + counter
-    let currentLine = s:Strip(getline(actionLnum))
-    let notDone = match(currentLine, '^\s*-.*$') == -1
-    if (currentIndent - 2 == actionIndent) && notDone
-      call add(actions, { "lnum": actionLnum, "text": currentLine, "bufnr": bufnr('%') })
-    endif
-    let counter += 1
+function! s:GetActionsPerProjects()
+  function! GetProject(actionHeaderLnum, actionsCount)
+    let projectName = "[" . strcharpart(Strip(getline(a:actionHeaderLnum - 1)), 2) . "][" . a:actionsCount . "]"
+    return {"lnum": a:actionHeaderLnum - 1, "text": projectName, "bufnr": bufnr('%'), "actionsCount": a:actionsCount}
+  endfunction
+  function! GetActions(actionHeaderLnum)
+    let actionIndent = indent(a:actionHeaderLnum)
+    let actions = []
+    let counter = 1
     let currentIndent = indent(a:actionHeaderLnum + counter)
-  endwhile
-  if len(actions) != 0
-    let project = s:GetProjectQFI(a:actionHeaderLnum)
-    let actions = [project] + actions
-  endif
-  return actions
+    while currentIndent > actionIndent
+      let actionLnum = a:actionHeaderLnum + counter
+      let currentLine = Strip(getline(actionLnum))
+      let notDone = match(currentLine, '^\s*-.*$') == -1
+      if (currentIndent - 2 == actionIndent) && notDone
+        call add(actions, { "lnum": actionLnum, "text": currentLine, "bufnr": bufnr('%') })
+      endif
+      let counter += 1
+      let currentIndent = indent(a:actionHeaderLnum + counter)
+    endwhile
+    return actions
+  endfunction
+  function! GetBoth(actionHeaderLnum)
+    let actions = GetActions(a:actionHeaderLnum)
+    let project = GetProject(a:actionHeaderLnum, len(actions))
+    return {"project": project, "actions": actions}
+  endfunction
+  function! HasActions(projectWithActions)
+    return a:projectWithActions.project.actionsCount != 0
+  endfunction
+  let getLineNumbers = "awk '/\\+ actions/{print NR}' " . expand('%:p')
+  let lineNums = systemlist(getLineNumbers)
+  return Filtered(function("HasActions"), Mapped(function("GetBoth"), lineNums))
 endfunction
 
-function! s:GetProjectQFI(actionHeaderLnum)
-  let projectName = "[" . strcharpart(s:Strip(getline(a:actionHeaderLnum - 1)), 2) . "]"
-  return {"lnum": a:actionHeaderLnum, "text": projectName, "bufnr": bufnr('%')}
-endfunction
-
-function! s:Flatten(toFlatten)
-  let results = []
-  for subList in a:toFlatten
-    let results = results + subList
-  endfor
-  return results
-endfunction
-
-function! s:Mapped(fn, l)
+function! Mapped(fn, l)
   let new_list = deepcopy(a:l)
   call map(new_list, string(a:fn) . '(v:val)')
   return new_list
 endfunction
 
-function! s:Strip(input_string)
+function! Filtered(fn, l)
+  let new_list = deepcopy(a:l)
+  call filter(new_list, string(a:fn) . '(v:val)')
+  return new_list
+endfunction
+
+function! Strip(input_string)
     return substitute(a:input_string, '^\s*\(.\{-}\)\s*$', '\1', '')
 endfunction
