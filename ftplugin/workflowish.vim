@@ -441,7 +441,7 @@ command! D Done | Undo | TT
 " |lnum+1| * action1
 " |lnum+2| + action2
 function! s:ShowAllActions()
-  let projectsWithActions = s:GetActionsPerProjects()
+  let projectsWithActions = Filtered(function("HasActions"), s:GetActionsPerProjects())
   let qf = []
   for projectWithActions in projectsWithActions
     call add(qf, projectWithActions.project)
@@ -512,12 +512,13 @@ function! s:GetActionsPerProjects()
     let project = GetProject(a:actionHeaderLnum, len(actions))
     return {"project": project, "actions": actions}
   endfunction
-  function! HasActions(projectWithActions)
-    return a:projectWithActions.project.actionsCount != 0
-  endfunction
   let getLineNumbers = "awk '/\\+ actions/{print NR}' " . expand('%:p')
   let lineNums = systemlist(getLineNumbers)
-  return Filtered(function("HasActions"), Mapped(function("GetBoth"), lineNums))
+  return Mapped(function("GetBoth"), lineNums)
+endfunction
+
+function! HasActions(projectWithActions)
+  return a:projectWithActions.project.actionsCount != 0
 endfunction
 
 function! Mapped(fn, l)
