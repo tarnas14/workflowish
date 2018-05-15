@@ -488,7 +488,7 @@ command! P call s:ShowAllProjects()
 function! s:GetActionsPerProjects()
   function! GetProject(actionHeaderLnum, actionsCount)
     let projectName = "[" . strcharpart(Strip(getline(a:actionHeaderLnum - 1)), 2) . "][" . a:actionsCount . "]"
-    return {"lnum": a:actionHeaderLnum - 1, "text": projectName, "bufnr": bufnr('%'), "actionsCount": a:actionsCount}
+    return {"lnum": a:actionHeaderLnum, "text": projectName, "bufnr": bufnr('%'), "actionsCount": a:actionsCount}
   endfunction
   function! GetActions(actionHeaderLnum)
     let actionIndent = indent(a:actionHeaderLnum)
