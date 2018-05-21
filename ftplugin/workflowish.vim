@@ -400,8 +400,8 @@ function! s:GetDateTag(days)
 endfunction
 
 command! -bar -nargs=1 Do call s:InsertAtEnd(s:GetDateTag(<f-args>))
-command! Today Do 0 | TT | <c-o>
-command! Tomorrow Do +1 | TTr
+command! Today Do 0 | :w
+command! Tomorrow Do +1 | :w
 
 command! -bar -nargs=1 Todo execute 'G /' . s:GetDateTag(<f-args>) . '/'
 command! TodoToday Todo 0 | noh
